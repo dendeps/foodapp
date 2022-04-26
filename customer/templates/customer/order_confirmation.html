@@ -1,0 +1,91 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<!-- Replace "test" with your own sandbox Business account app client ID -->
+<script src="https://www.paypal.com/sdk/js?client-id=AYnief4O0LiE1ul0l1kv-gq1JVLMxrFmThEjsfin4STg4dxhPir5AVnIQDvfqqwwufwMDEbkUt-BOIYy&currency=USD"></script>
+
+
+<div class="container mb-5">
+    <div class="row justify-content-center mt-1">
+        <div class="col-md-5 col-sm-12 p-4 text-center">
+            <h1>Order Submitted!</h1>
+            <p>You should receive a confirmation email soon.</p>
+            <a href="{% url 'index' %}">Go to the homepage</a>
+        </div>
+    </div>
+
+    <div class="row justify-content-center mt-5">
+        <div class="col-md-5 col-sm-12 text-center">
+            <h3 class="pb-3">Order Summary:</h3>
+            {% for item in items %}
+                <p>{{ item.name }} <span class="ps-3">{{ item.price }}</span></p>
+            {% endfor %}
+
+            <p class="fw-bolder pt-4">Total: {{ price }}</p>
+        </div>
+    </div>
+
+    <div class="row justify-content-center pb-2 pt-5">
+        <div class="col-md-6 text-center">
+            <h3>Pay with PayPal or pay with cash on delivery</h3>
+        </div>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-md-6 text-center">
+            <div id="paypal-button-container">
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    // Does this cookie string begin with the name we want?
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+        const csrftoken = getCookie('csrftoken');
+
+      paypal.Buttons({
+        // Sets up the transaction when a payment button is clicked
+        createOrder: (data, actions) => {
+          return actions.order.create({
+            purchase_units: [{
+              amount: {
+                value: '{{ price }}' // Can also reference a variable or function
+              }
+            }]
+          });
+        },
+        // Finalize the transaction after payer approval
+        onApprove: (data, actions) => {
+          return actions.order.capture().then(function(orderData) {
+            $.ajax({
+            type: 'POST',
+            url: "{% url 'order-confirmation' pk %}",
+            beforeSend: function(request) {
+                request.setRequestHeader('X-CSRFToken', csrftoken)
+                },
+                data: JSON.stringify({'isPaid': true}),
+                success: function(data) {
+                    window.location.href = '/payment-confirmation'
+                    }
+            })
+          });
+        }
+      }).render('#paypal-button-container');
+    </script>
+
+{% endblock content %}
