@@ -1,4 +1,4 @@
-{% extends 'restaurant/base.html' %}
+{% extends 'base.html' %}
 
 {% block content %}
     <div class="container">
@@ -28,6 +28,8 @@
                             <th scope="col">State</th>
                             <th scope="col">Zip Code</th>
                             <th scope="col">Is Paid?</th>
+                            <th scope="col">Is Shipped?</th>
+                            <th scope="col">Details</th>
                         </tr>
                     </thead>
 
@@ -50,6 +52,14 @@
                                 {% endif %}
 
                             </td>
+                            <td>
+                                {% if order.isshipped %}
+                                <i style="color: green;" class="fas fa-check"></i>
+                                {% else %}
+                                <i style="color: red;" class="fas fa-times"></i>
+                                {% endif %}
+                            </td>
+                            <td><a class="btn btn-outline-primary btn-sm" href="{% url 'order-details' order.pk %}">Details</a></td>
                         </tr>
                         {% endfor %}
                     </tbody>

@@ -31,6 +31,7 @@ class Order(models.Model):
     state = models.CharField(max_length=50, blank=True)
     zipcode = models.IntegerField(null=True, blank=True)
     ispaid = models.BooleanField(default=False)
+    isshipped = models.BooleanField(default=False)
 
     def __str__(self):
         return f'Order: {self.created_on.strftime("%b %d %I: %M %p") }'

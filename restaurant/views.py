@@ -30,3 +30,22 @@ class Dashboard(LoginRequiredMixin, UserPassesTestMixin, View):
 
     def test_func(self):
         return self.request.user.groups.filter(name='staff').exists()
+
+class OrderDetails(LoginRequiredMixin, UserPassesTestMixin, View):
+    def get(self, request, pk, *args, **kwargs):
+        order = Order.objects.get(pk=pk)
+        context = {
+            'order': order
+        }
+        return render(request, 'restaurant/order_details.html', context)
+
+    def post(self, request, pk, *args, **kwargs):
+        order = Order.objects.get(pk=pk)
+        order.isshipped = True
+        context = {
+            'order': order
+        }
+        return render(request, 'restaurant/order_details.html', context)
+
+    def test_func(self):
+        return self.request.user.groups.filter(name='staff').exists()
